@@ -1,6 +1,6 @@
 # MKR Hotels – Hotel Booking Website (Django)
 
-A fully functional hotel booking website built with **Django**, converted from the original
+A fully functional hotel booking website built with **Django**, intergated 
 HTML/CSS/JS version (kept for reference in `original-html/`).
 
 ## Features
