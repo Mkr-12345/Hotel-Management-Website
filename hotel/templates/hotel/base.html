@@ -1,0 +1,64 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MKR HOTELS{% endblock %}</title>
+  <meta name="description" content="{% block description %}MKR Hotels – premium stays in India and around the world. Book rooms online.{% endblock %}">
+  <link rel="stylesheet" href="{% static 'hotel/css/style.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <p class="brand"><a href="{% url 'home' %}">MKR HOTELS</a></p>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">☰ Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <a href="{% url 'home' %}" {% if nav == 'home' %}class="active" aria-current="page"{% endif %}>Home</a>
+      <a href="{% url 'about' %}" {% if nav == 'about' %}class="active" aria-current="page"{% endif %}>About</a>
+      <a href="{% url 'rooms' %}" {% if nav == 'rooms' %}class="active" aria-current="page"{% endif %}>Rooms</a>
+      <a href="{% url 'locations' %}" {% if nav == 'locations' %}class="active" aria-current="page"{% endif %}>Locations</a>
+      <a href="{% url 'dining' %}" {% if nav == 'dining' %}class="active" aria-current="page"{% endif %}>Dining</a>
+      <a href="{% url 'amenities' %}" {% if nav == 'amenities' %}class="active" aria-current="page"{% endif %}>Amenities</a>
+      <a href="{% url 'gallery' %}" {% if nav == 'gallery' %}class="active" aria-current="page"{% endif %}>Gallery</a>
+      <a href="{% url 'contact' %}" {% if nav == 'contact' %}class="active" aria-current="page"{% endif %}>Contact</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'my_bookings' %}" {% if nav == 'my_bookings' %}class="active" aria-current="page"{% endif %}>My Bookings</a>
+        {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Logout</button></form>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a>
+      {% endif %}
+      <a href="{% url 'booking' %}" class="nav-cta{% if nav == 'booking' %} active{% endif %}">Book Now</a>
+    </nav>
+  </header>
+
+  {% if messages %}
+  <ul class="messages" role="status">
+    {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; {% now "Y" %} MKR HOTELS. All rights reserved.</p>
+    <p>📞 {{ HOTEL_PHONE }} · ✉️ <a href="mailto:{{ HOTEL_EMAIL }}">{{ HOTEL_EMAIL }}</a></p>
+    <p><b>Designed With Love By Manish</b></p>
+  </footer>
+
+  <script>
+    (function () {
+      var btn = document.querySelector('.nav-toggle'), nav = document.getElementById('site-nav');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var open = nav.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+      });
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

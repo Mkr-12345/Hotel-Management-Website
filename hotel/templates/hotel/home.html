@@ -1,0 +1,52 @@
+{% extends "hotel/base.html" %}{% load humanize %}
+{% block content %}
+<div class="wide home">
+  <section>
+    <h1>Welcome to MKR HOTELS</h1>
+    <p class="lead">
+      Discover premium stays in the world's most exciting destinations. Whether you're traveling for
+      business or leisure, MKR Hotels offer top-tier accommodations, service, and amenities tailored for excellence.
+    </p>
+    <a class="button" href="{% url 'booking' %}">Book Your Stay</a>
+  </section>
+
+  <section aria-label="Why MKR Hotels" class="card-container">
+    <a class="card" href="{% url 'booking' %}"><h2 style="font-size:1.3rem">Easy Booking</h2><p>Fast and simple online reservation with secure online payment.</p></a>
+    <a class="card" href="{% url 'rooms' %}"><h2 style="font-size:1.3rem">Luxury Rooms</h2><p>Spacious rooms with modern amenities and breathtaking views.</p></a>
+    <a class="card" href="{% url 'locations' %}"><h2 style="font-size:1.3rem">Prime Locations</h2><p>Centrally located properties in top cities worldwide.</p></a>
+  </section>
+
+  <section>
+    <h2>Featured Rooms</h2>
+    <div class="card-container">
+      {% for room in room_types %}
+      <a class="card room-card" href="{{ room.get_absolute_url }}">
+        <img src="{{ room.image_url }}" alt="{{ room.name }} interior" loading="lazy">
+        <div class="card-body">
+          <h3>{{ room.name }}</h3>
+          <p class="price">₹{{ room.price_per_night|intcomma }} <small>/ night</small></p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <a class="button" href="{% url 'rooms' %}">See all rooms</a>
+  </section>
+
+  <section>
+    <h2>Gallery</h2>
+    <div class="gallery">
+      <img src="https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg" alt="Hotel lobby" loading="lazy">
+      <img src="https://images.pexels.com/photos/262048/pexels-photo-262048.jpeg" alt="Room interior" loading="lazy">
+      <img src="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg" alt="Pool area" loading="lazy">
+    </div>
+  </section>
+
+  <section>
+    <h2>Contact Us</h2>
+    <div class="contact-info">
+      <div>📞 <a href="tel:{{ HOTEL_PHONE|cut:' ' }}">{{ HOTEL_PHONE }}</a></div>
+      <div>📍 Global Headquarters: Sonipat, HR</div>
+    </div>
+  </section>
+</div>
+{% endblock %}

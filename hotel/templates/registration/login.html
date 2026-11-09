@@ -1,0 +1,16 @@
+{% extends "hotel/base.html" %}
+{% block title %}Login – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">Login</h1>
+<div class="panel narrow">
+  {% if next and not user.is_authenticated %}<div class="alert warn">Please log in to continue.</div>{% endif %}
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {% include "hotel/includes/form_errors.html" %}
+    {% for field in form %}{% include "hotel/includes/field.html" %}{% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn">Login</button>
+  </form>
+  <p class="form-footer">New here? <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a> · <a href="{% url 'password_reset' %}">Forgot password?</a></p>
+</div>
+{% endblock %}

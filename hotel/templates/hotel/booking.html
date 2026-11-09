@@ -1,0 +1,89 @@
+{% extends "hotel/base.html" %}
+{% block title %}Book Your Stay – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">Book Your Stay</h1>
+<div class="panel narrow">
+  <form method="post" class="form" id="booking-form" novalidate data-availability-url="{% url 'check_availability' %}">
+    {% csrf_token %}
+    {% include "hotel/includes/form_errors.html" %}
+    {% with f=form %}
+      {% include "hotel/includes/field.html" with field=f.guest_name %}
+      <div class="row">
+        {% include "hotel/includes/field.html" with field=f.guest_email %}
+        {% include "hotel/includes/field.html" with field=f.guest_phone %}
+      </div>
+      {% include "hotel/includes/field.html" with field=f.location %}
+      <div class="row">
+        {% include "hotel/includes/field.html" with field=f.check_in %}
+        {% include "hotel/includes/field.html" with field=f.check_out %}
+      </div>
+      <div class="row">
+        {% include "hotel/includes/field.html" with field=f.room_type %}
+        {% include "hotel/includes/field.html" with field=f.guests %}
+      </div>
+      <div id="quote" class="quote empty" aria-live="polite"></div>
+      {% include "hotel/includes/field.html" with field=f.special_requests %}
+    {% endwith %}
+    <button type="submit" class="btn">Continue to Payment</button>
+    <p class="form-footer">Your room is held for a few minutes while you pay. Nothing is charged until you complete payment.</p>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var form = document.getElementById('booking-form');
+  var quote = document.getElementById('quote');
+  var url = form.dataset.availabilityUrl;
+  var prices = {{ prices_json|safe }};
+  var ci = document.getElementById('id_check_in'), co = document.getElementById('id_check_out');
+  ci.min = '{{ today }}'; co.min = '{{ today }}';
+  ci.addEventListener('change', function () {
+    if (ci.value) {
+      var next = new Date(ci.value); next.setDate(next.getDate() + 1);
+      co.min = next.toISOString().slice(0, 10);
+      if (!co.value || co.value <= ci.value) co.value = co.min;
+    }
+  });
+
+  function rupees(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+  function show(html) { quote.innerHTML = html; quote.classList.toggle('empty', !html); }
+
+  var timer;
+  function refresh() {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      var data = new FormData(form);
+      var rt = data.get('room_type');
+      if (!rt) { show(''); return; }
+      if (!data.get('location') || !data.get('check_in') || !data.get('check_out')) {
+        show('Price: ' + rupees(prices[rt]) + ' per night');
+        return;
+      }
+      var params = new URLSearchParams();
+      ['location', 'room_type', 'check_in', 'check_out', 'guests'].forEach(function (k) { params.set(k, data.get(k) || ''); });
+      fetch(url + '?' + params.toString(), { headers: { 'X-Requested-With': 'fetch' } })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (!res.ok) {
+            var first = Object.values(res.errors)[0];
+            show('<span class="avail-no">' + first + '</span>');
+            return;
+          }
+          var line = rupees(res.rate) + ' × ' + res.nights + ' night' + (res.nights > 1 ? 's' : '') + ' = <strong>' + rupees(res.total) + '</strong>';
+          var avail = res.available > 0
+            ? '<span class="avail-ok">✓ ' + res.available + ' room' + (res.available > 1 ? 's' : '') + ' available</span>'
+            : '<span class="avail-no">✗ Sold out for these dates</span>';
+          show(line + '<br>' + avail);
+        })
+        .catch(function () { show(''); });
+    }, 250);
+  }
+  ['location', 'room_type', 'check_in', 'check_out', 'guests'].forEach(function (name) {
+    form.elements[name].addEventListener('change', refresh);
+  });
+  refresh();
+})();
+</script>
+{% endblock %}

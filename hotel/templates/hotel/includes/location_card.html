@@ -1,0 +1,6 @@
+<div class="location">
+  <img src="{{ loc.image_url }}" alt="{{ loc.name }}" loading="lazy">
+  <h3>{{ loc }}</h3>
+  <p>{{ loc.description }}</p>
+  <a class="btn small" href="{% url 'booking' %}?location={{ loc.slug }}">Book in {{ loc.name }}</a>
+</div>

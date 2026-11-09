@@ -1,0 +1,24 @@
+{% extends "hotel/base.html" %}{% load humanize %}
+{% block title %}{{ room.name }} – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ room.name }}</h1>
+<div class="panel">
+  <a href="{% url 'rooms' %}" class="back-button">← All rooms</a>
+  <div class="room" style="border:0;padding:0">
+    <img src="{{ room.image_url }}" alt="{{ room.name }}">
+    <p class="price" style="font-size:1.3rem">₹{{ room.price_per_night|intcomma }} <small>/ night · up to {{ room.max_guests }} guests</small></p>
+    <p>{{ room.description }}</p>
+    {% if room.feature_list %}<ul class="tags" aria-label="Room features">{% for f in room.feature_list %}<li>{{ f }}</li>{% endfor %}</ul>{% endif %}
+  </div>
+  <h2>Available at</h2>
+  <div class="locations">
+    {% for loc in locations %}
+    <div class="location">
+      <img src="{{ loc.image_url }}" alt="{{ loc.name }}" loading="lazy">
+      <h3>{{ loc }}</h3>
+      <a class="btn small" href="{% url 'booking' %}?room_type={{ room.slug }}&amp;location={{ loc.slug }}">Book here</a>
+    </div>
+    {% empty %}<p>Not currently offered at any location.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

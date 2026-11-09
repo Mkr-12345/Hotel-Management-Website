@@ -1,0 +1,24 @@
+{% extends "hotel/base.html" %}{% load humanize %}
+{% block title %}Booking {{ booking.reference }} – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">Booking Receipt</h1>
+<div class="panel medium">
+  <p><span class="status status-{{ booking.status }}">{{ booking.get_status_display }}</span></p>
+  {% include "hotel/includes/booking_details.html" %}
+  <p class="total-line">Total: ₹{{ booking.total_amount|intcomma }}</p>
+  {% if payment %}
+  <h2 style="font-size:1.2rem">Payment</h2>
+  <dl class="details">
+    <dt>Status</dt><dd>{{ payment.get_status_display }}</dd>
+    <dt>Payment ID</dt><dd>{{ payment.payment_id|default:"—" }}</dd>
+    {% if payment.refund_id %}<dt>Refund ID</dt><dd>{{ payment.refund_id }}</dd>{% endif %}
+    <dt>Paid on</dt><dd>{{ booking.confirmed_at|default:payment.updated_at|date:"d M Y, g:i A" }}</dd>
+  </dl>
+  {% endif %}
+  <div class="buttons">
+    <button type="button" class="btn" onclick="window.print()">🖨 Print Receipt</button>
+    <a href="{% url 'my_bookings' %}" class="btn secondary">My Bookings</a>
+    <a href="{% url 'home' %}" class="btn secondary">🏠 Return to Home</a>
+  </div>
+</div>
+{% endblock %}

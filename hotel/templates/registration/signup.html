@@ -1,0 +1,14 @@
+{% extends "hotel/base.html" %}
+{% block title %}Create Account – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">Create Account</h1>
+<div class="panel narrow">
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {% include "hotel/includes/form_errors.html" %}
+    {% for field in form %}{% include "hotel/includes/field.html" %}{% endfor %}
+    <button type="submit" class="btn">Sign Up</button>
+  </form>
+  <p class="form-footer">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</div>
+{% endblock %}

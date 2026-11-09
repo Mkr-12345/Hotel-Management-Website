@@ -1,0 +1,16 @@
+{% load humanize %}Hi {{ booking.guest_name }},
+
+Your stay at MKR Hotels is confirmed. Thank you for booking with us!
+
+Booking reference: {{ booking.reference }}
+Hotel:      {{ booking.location }}
+Room:       {{ booking.room_type.name }} (Room {{ booking.room.number }})
+Check-in:   {{ booking.check_in|date:"D, d M Y" }}
+Check-out:  {{ booking.check_out|date:"D, d M Y" }}
+Guests:     {{ booking.guests }}
+Amount paid: Rs. {{ booking.total_amount|intcomma }}
+
+You can view, print or cancel this booking any time from "My Bookings" on our website.
+
+Warm regards,
+MKR Hotels

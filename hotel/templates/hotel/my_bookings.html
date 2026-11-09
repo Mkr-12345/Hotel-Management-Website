@@ -1,0 +1,37 @@
+{% extends "hotel/base.html" %}{% load humanize %}
+{% block title %}My Bookings – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">My Bookings</h1>
+<div class="panel">
+  {% if bookings %}
+  <div class="booking-list">
+    {% for b in bookings %}
+    <article class="booking-item">
+      <div>
+        <h2 style="font-size:1.1rem;margin:0 0 4px">{{ b.room_type.name }} · {{ b.location }}</h2>
+        <p>{{ b.check_in|date:"d M Y" }} → {{ b.check_out|date:"d M Y" }} · {{ b.nights }} night{{ b.nights|pluralize }} · ₹{{ b.total_amount|intcomma }}</p>
+        <p>Ref {{ b.reference }} · <span class="status status-{{ b.status }}">{{ b.get_status_display }}</span></p>
+      </div>
+      <div class="actions">
+        {% if b.status == 'pending' %}
+          <a class="btn small" href="{% url 'payment' b.reference %}">Pay now</a>
+        {% elif b.status == 'confirmed' or b.status == 'cancelled' %}
+          <a class="btn small secondary" href="{{ b.get_absolute_url }}">Receipt</a>
+        {% endif %}
+        {% if b.can_cancel %}
+        <form method="post" action="{% url 'cancel_booking' b.reference %}" onsubmit="return confirm('Cancel booking {{ b.reference }}?{% if b.status == 'confirmed' %} Your payment will be refunded.{% endif %}');">
+          {% csrf_token %}<button type="submit" class="btn small danger">Cancel</button>
+        </form>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>You haven't made any bookings yet.</p>
+    <a class="btn" href="{% url 'booking' %}">Book Your Stay</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

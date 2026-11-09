@@ -1,0 +1,14 @@
+{% load humanize %}
+<dl class="details">
+  <dt>Reference</dt><dd>{{ booking.reference }}</dd>
+  <dt>Name</dt><dd>{{ booking.guest_name }}</dd>
+  <dt>Email</dt><dd>{{ booking.guest_email }}</dd>
+  <dt>Phone</dt><dd>{{ booking.guest_phone }}</dd>
+  <dt>Location</dt><dd>{{ booking.location }}</dd>
+  <dt>Room</dt><dd>{{ booking.room_type.name }} (Room {{ booking.room.number }})</dd>
+  <dt>Guests</dt><dd>{{ booking.guests }}</dd>
+  <dt>Check-in</dt><dd>{{ booking.check_in|date:"D, d M Y" }}</dd>
+  <dt>Check-out</dt><dd>{{ booking.check_out|date:"D, d M Y" }}</dd>
+  <dt>Nights</dt><dd>{{ booking.nights }} × ₹{{ booking.nightly_rate|intcomma }}</dd>
+  {% if booking.special_requests %}<dt>Requests</dt><dd>{{ booking.special_requests }}</dd>{% endif %}
+</dl>

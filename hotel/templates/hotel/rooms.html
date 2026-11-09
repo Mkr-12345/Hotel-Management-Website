@@ -1,0 +1,24 @@
+{% extends "hotel/base.html" %}{% load humanize %}
+{% block title %}Rooms – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">Our Rooms</h1>
+<div class="panel">
+  {% for room in room_types %}
+  <article class="room">
+    <div class="room-head">
+      <h2><a href="{{ room.get_absolute_url }}" style="text-decoration:none">{{ room.name }}</a></h2>
+      <p class="price">₹{{ room.price_per_night|intcomma }} <small>/ night · up to {{ room.max_guests }} guests</small></p>
+    </div>
+    <img src="{{ room.image_url }}" alt="{{ room.name }}" loading="lazy">
+    <p>{{ room.description }}</p>
+    {% if room.feature_list %}<ul class="tags" aria-label="Room features">{% for f in room.feature_list %}<li>{{ f }}</li>{% endfor %}</ul>{% endif %}
+    <div class="room-actions">
+      <a class="btn" href="{% url 'booking' %}?room_type={{ room.slug }}">Book {{ room.name }}</a>
+      <a href="{{ room.get_absolute_url }}">Details &amp; locations →</a>
+    </div>
+  </article>
+  {% empty %}
+  <p class="empty-state">No rooms yet. Add some in the admin panel or run <code>python manage.py seed_hotel</code>.</p>
+  {% endfor %}
+</div>
+{% endblock %}

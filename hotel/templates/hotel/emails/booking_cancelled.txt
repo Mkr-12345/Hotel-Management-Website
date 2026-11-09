@@ -1,0 +1,8 @@
+{% load humanize %}Hi {{ booking.guest_name }},
+
+Your booking {{ booking.reference }} ({{ booking.room_type.name }}, {{ booking.location }}, {{ booking.check_in|date:"d M Y" }} – {{ booking.check_out|date:"d M Y" }}) has been cancelled.
+
+If you paid online, a refund of Rs. {{ booking.total_amount|intcomma }} has been started and usually reaches your account in 5–7 working days.
+
+We hope to welcome you another time.
+MKR Hotels

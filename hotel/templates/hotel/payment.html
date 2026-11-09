@@ -1,0 +1,92 @@
+{% extends "hotel/base.html" %}{% load humanize %}
+{% block title %}Payment – MKR HOTELS{% endblock %}
+{% block content %}
+<h1 class="page-title">Payment</h1>
+<div class="panel narrow">
+  <div class="summary">
+    <h2>Booking Summary</h2>
+    {% include "hotel/includes/booking_details.html" %}
+    <p class="total-line">Total: ₹{{ booking.total_amount|intcomma }}</p>
+    <p class="timer" id="timer" data-expires="{{ booking.hold_expires_at|date:'c' }}">Room held for you until {{ booking.hold_expires_at|time:"g:i A" }}.</p>
+  </div>
+
+  {% if demo_mode %}
+    <div class="alert warn">
+      <strong>Demo payment mode.</strong> Razorpay keys aren't configured, so this button simulates a successful payment.
+      Add your keys to <code>.env</code> to accept real payments.
+    </div>
+    <form method="post" action="{% url 'payment_demo' booking.reference %}">
+      {% csrf_token %}
+      <input type="hidden" name="order_id" value="{{ order.order_id }}">
+      <button type="submit" class="btn">Pay ₹{{ booking.total_amount|intcomma }} (demo)</button>
+    </form>
+  {% else %}
+    <p>Pay securely with UPI, card, net banking or wallet via Razorpay.</p>
+    <button type="button" class="btn" id="pay-btn">Pay ₹{{ booking.total_amount|intcomma }}</button>
+    <form method="post" action="{% url 'payment_verify' booking.reference %}" id="verify-form" hidden>
+      {% csrf_token %}
+      <input type="hidden" name="razorpay_order_id">
+      <input type="hidden" name="razorpay_payment_id">
+      <input type="hidden" name="razorpay_signature">
+    </form>
+    <form method="post" action="{% url 'payment_failed' booking.reference %}" id="failed-form" hidden>
+      {% csrf_token %}
+      <input type="hidden" name="order_id" value="{{ order.order_id }}">
+      <input type="hidden" name="reason">
+    </form>
+  {% endif %}
+
+  <form method="post" action="{% url 'cancel_booking' booking.reference %}" style="margin-top:1.5em">
+    {% csrf_token %}
+    <button type="submit" class="btn secondary small">Cancel this booking</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var t = document.getElementById('timer');
+  var end = new Date(t.dataset.expires);
+  function tick() {
+    var left = Math.max(0, Math.floor((end - new Date()) / 1000));
+    if (left === 0) { t.textContent = 'Your hold has expired. Please book again.'; var b = document.getElementById('pay-btn'); if (b) b.disabled = true; return; }
+    t.textContent = 'Room held for you for ' + Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0') + ' more minutes.';
+    setTimeout(tick, 1000);
+  }
+  tick();
+})();
+</script>
+{% if not demo_mode %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+(function () {
+  var verify = document.getElementById('verify-form');
+  var failed = document.getElementById('failed-form');
+  var options = {
+    key: "{{ razorpay_key|escapejs }}",
+    amount: "{{ amount_paise }}",
+    currency: "INR",
+    name: "MKR Hotels",
+    description: "{{ booking.room_type.name|escapejs }} · {{ booking.location.name|escapejs }} · {{ booking.nights }} night{{ booking.nights|pluralize }}",
+    order_id: "{{ order.order_id|escapejs }}",
+    prefill: { name: "{{ booking.guest_name|escapejs }}", email: "{{ booking.guest_email|escapejs }}", contact: "{{ booking.guest_phone|escapejs }}" },
+    notes: { booking: "{{ booking.reference }}" },
+    theme: { color: "#1e3a8a" },
+    handler: function (res) {
+      verify.razorpay_order_id.value = res.razorpay_order_id;
+      verify.razorpay_payment_id.value = res.razorpay_payment_id;
+      verify.razorpay_signature.value = res.razorpay_signature;
+      verify.submit();
+    }
+  };
+  var rzp = new Razorpay(options);
+  rzp.on('payment.failed', function (res) {
+    failed.reason.value = (res.error && res.error.description) || 'Payment failed.';
+    failed.submit();
+  });
+  document.getElementById('pay-btn').addEventListener('click', function (e) { e.preventDefault(); rzp.open(); });
+})();
+</script>
+{% endif %}
+{% endblock %}

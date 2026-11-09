@@ -1,0 +1,4 @@
+Django>=5.0,<6.0
+razorpay>=1.4
+python-dotenv>=1.0
+setuptools  # the razorpay SDK still imports pkg_resources
